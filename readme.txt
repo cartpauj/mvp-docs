@@ -1,0 +1,86 @@
+=== MVP Docs ===
+Contributors: cartpauj
+Tags: documentation, docs, knowledge base, markdown
+Requires at least: 6.7
+Tested up to: 6.9
+Requires PHP: 8.0
+Stable tag: 1.0.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+A minimum viable documentation plugin. Lightweight, native, no bloat.
+
+== Description ==
+
+MVP Docs adds a simple documentation system to your WordPress site. It creates a Docs custom post type with categories, a clean archive page, and a markdown import tool — nothing more.
+
+**Why MVP Docs?**
+
+Most documentation plugins are overbuilt. They add custom page builders, proprietary editors, dozens of database tables, and megabytes of JavaScript. MVP Docs takes the opposite approach:
+
+* Uses the native WordPress block editor
+* Works with any theme (block themes and classic themes)
+* Stores content as standard WordPress posts
+* Loads zero scripts or styles outside of doc pages
+* No lock-in — your content is just posts and taxonomies
+
+**Features**
+
+* **Docs post type** with archive at `/docs/`
+* **Doc Categories** for organizing content
+* **Markdown import** — upload a `.md` file and it converts to native Gutenberg blocks (tables, code blocks, lists, and all GFM features)
+* **Archive page** — docs grouped by category in a card grid
+* **Category archives** — full list of docs in a category
+* **Breadcrumbs** on single doc pages
+* **Settings** — archive layout (columns, border radius, docs per category), colors, sort order, custom slugs, category ordering via drag-and-drop
+* **Block theme support** — registers proper block templates for single docs, archives, and category pages
+* **Classic theme support** — falls back to PHP templates with `get_header()`/`get_footer()`
+
+**Markdown Import**
+
+The block editor sidebar includes an "Import from Markdown" button. Upload any `.md` file and it gets parsed server-side with full GitHub Flavored Markdown support (via league/commonmark), then converted into native Gutenberg blocks. The first `# Heading` becomes the post title automatically.
+
+Supported: headings, bold, italic, links, images, tables, fenced code blocks with syntax hints, task lists, strikethrough, blockquotes, horizontal rules, ordered and unordered lists.
+
+== Installation ==
+
+1. Go to Plugins > Add New and search for "MVP Docs"
+2. Click Install Now, then Activate
+3. Go to Settings > Permalinks and click Save (to register the URL structure)
+4. Start creating docs under the new Docs menu
+
+== Frequently Asked Questions ==
+
+= Does it work with my theme? =
+
+Yes. MVP Docs auto-detects whether you're using a block theme or a classic theme and uses the appropriate template system. The archive styling is minimal and designed to work within your theme's layout.
+
+= Can I import existing markdown files? =
+
+Yes. When editing a doc, open the sidebar and click "Import from Markdown" under Doc Settings. Select a `.md` file and it will be converted to native Gutenberg blocks.
+
+= Does it add scripts or styles to every page? =
+
+No. CSS and JS are only loaded on doc pages — the archive, category pages, and single docs. Nothing is enqueued globally.
+
+= Can I change the URL structure? =
+
+Yes. Go to Docs > Settings > Permalinks to change the docs slug and category slug.
+
+= What happens if I deactivate the plugin? =
+
+Your content stays. Docs are standard WordPress posts — they remain in your database and can be accessed via the admin even without the plugin active.
+
+== Screenshots ==
+
+1. Docs archive page with category cards
+2. Single doc with breadcrumbs
+3. Settings — Design tab
+4. Settings — Category Order (drag and drop)
+5. Settings — Permalinks
+6. Markdown import in the block editor sidebar
+
+== Changelog ==
+
+= 1.0.0 =
+* Initial release

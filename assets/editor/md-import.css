@@ -1,0 +1,22 @@
+/* MVP Docs — Editor sidebar panel */
+
+.mvpd-import-section {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.mvpd-import-btn {
+	width: 100%;
+	justify-content: center;
+}
+
+.mvpd-import-status {
+	margin-top: 8px;
+	font-size: 12px;
+	color: #1e7e34;
+}
+
+.mvpd-import-status.is-error {
+	color: #cc1818;
+}

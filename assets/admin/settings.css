@@ -1,0 +1,21 @@
+/* MVP Docs — Settings page styles */
+
+.mvpd-field-error {
+	border-color: #d63638 !important;
+	box-shadow: 0 0 0 1px #d63638 !important;
+}
+
+.mvpd-inline-error {
+	color: #d63638;
+	font-size: 13px;
+	margin: 4px 0 0;
+	font-weight: 500;
+}
+
+.mvpd-copy-url {
+	margin-left: 4px !important;
+}
+
+.mvpd-tab-intro {
+	margin-top: 1rem;
+}

@@ -1,0 +1,27 @@
+<?php
+/**
+ * @license BSD-3-Clause
+ *
+ * Modified by __root__ on 21-March-2026 using {@see https://github.com/BrianHenryIE/strauss}.
+ */
+
+declare(strict_types=1);
+
+/*
+ * This is part of the league/commonmark package.
+ *
+ * (c) Martin Hasoň <martin.hason@gmail.com>
+ * (c) Webuni s.r.o. <info@webuni.cz>
+ * (c) Colin O'Dell <colinodell@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace MvpDocs\Vendor\League\CommonMark\Extension\Table;
+
+use MvpDocs\Vendor\League\CommonMark\Node\Block\AbstractBlock;
+
+final class TableRow extends AbstractBlock
+{
+}

@@ -1,0 +1,55 @@
+/* MVP Docs — Category Order */
+
+.mvpd-cat-sortable {
+	max-width: 500px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.mvpd-cat-sortable li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	margin-bottom: -1px;
+	background: #fff;
+	border: 1px solid #ddd;
+	font-size: 14px;
+	cursor: default;
+}
+
+.mvpd-cat-sortable li:first-child {
+	border-radius: 4px 4px 0 0;
+}
+
+.mvpd-cat-sortable li:last-child {
+	border-radius: 0 0 4px 4px;
+}
+
+.mvpd-cat-sortable .dashicons-menu {
+	cursor: grab;
+	color: #999;
+}
+
+.mvpd-cat-sortable .dashicons-menu:active {
+	cursor: grabbing;
+}
+
+.mvpd-cat-count {
+	margin-left: auto;
+	font-size: 12px;
+	color: #999;
+}
+
+.mvpd-sortable-placeholder {
+	height: 40px;
+	background: #f0f6fc;
+	border: 2px dashed #72aee6;
+	border-radius: 4px;
+	margin-bottom: -1px;
+}
+
+.ui-sortable-helper {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}

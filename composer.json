@@ -1,0 +1,34 @@
+{
+    "require": {
+        "league/commonmark": "^2.8"
+    },
+    "require-dev": {
+        "brianhenryie/strauss": "^0.19"
+    },
+    "extra": {
+        "strauss": {
+            "target_directory": "vendor-prefixed",
+            "namespace_prefix": "MvpDocs\\Vendor\\",
+            "classmap_prefix": "MvpDocs_Vendor_",
+            "constant_prefix": "MVPD_VENDOR_",
+            "packages": [
+                "league/commonmark",
+                "league/config",
+                "dflydev/dot-access-data",
+                "nette/utils",
+                "psr/event-dispatcher",
+                "symfony/deprecation-contracts",
+                "symfony/polyfill-php80"
+            ],
+            "delete_vendor_packages": true
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "vendor/bin/strauss"
+        ],
+        "post-update-cmd": [
+            "vendor/bin/strauss"
+        ]
+    }
+}
