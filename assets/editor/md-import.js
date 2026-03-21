@@ -1,9 +1,8 @@
 /**
  * MVP Docs — Markdown Import button for the block editor.
  *
- * Two-stage pipeline:
- * 1. AJAX sends markdown to PHP (league/commonmark with GFM) → returns HTML
- * 2. wp.blocks.rawHandler converts HTML → native Gutenberg blocks
+ * Uses marked.js to convert markdown to HTML client-side,
+ * then wp.blocks.rawHandler converts HTML to native Gutenberg blocks.
  */
 ( function () {
 	var el             = wp.element.createElement;
@@ -16,6 +15,7 @@
 	var registerPlugin = wp.plugins.registerPlugin;
 	var dispatch       = wp.data.dispatch;
 	var rawHandler     = wp.blocks.rawHandler;
+	var createBlock    = wp.blocks.createBlock;
 
 	var MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB.
 
@@ -24,6 +24,75 @@
 	 */
 	function stripTags( html ) {
 		return html.replace( /<[^>]*>/g, '' ).trim();
+	}
+
+	/**
+	 * Decode HTML entities back to raw text.
+	 */
+	function decodeEntities( str ) {
+		var textarea = document.createElement( 'textarea' );
+		textarea.innerHTML = str;
+		return textarea.value;
+	}
+
+	/**
+	 * Escape HTML for use inside code block content attributes.
+	 */
+	function escapeCodeContent( str ) {
+		return str.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+	}
+
+	var CODE_PREFIX = 'MVPDCODEBLOCK';
+
+	/**
+	 * Extract <pre><code> blocks from HTML, replace with placeholders,
+	 * and return the code data for later block creation.
+	 */
+	function extractCodeBlocks( html ) {
+		var codeBlocks = [];
+		var processed  = html.replace( /<pre><code(?:\s+class="language-([^"]*)")?>([^]*?)<\/code><\/pre>/gi, function ( match, lang, content ) {
+			var placeholder = '<p>' + CODE_PREFIX + codeBlocks.length + '</p>';
+			codeBlocks.push( {
+				language: lang || '',
+				content: decodeEntities( content ).replace( /\n$/, '' ),
+			} );
+			return placeholder;
+		} );
+		return { html: processed, codeBlocks: codeBlocks };
+	}
+
+	/**
+	 * Convert HTML to blocks, reinserting code blocks as proper core/code blocks.
+	 */
+	function htmlToBlocks( html, codeBlocks ) {
+		var blocks = rawHandler( { HTML: html } );
+
+		if ( ! codeBlocks.length ) return blocks;
+
+		var result      = [];
+		var lastWasCode = false;
+		for ( var i = 0; i < blocks.length; i++ ) {
+			var block   = blocks[ i ];
+			var content = ( block.attributes && block.attributes.content ) || '';
+
+			// Check if this block contains a placeholder.
+			var placeholderMatch = content.match( new RegExp( CODE_PREFIX + '(\\d+)' ) );
+			if ( placeholderMatch ) {
+				var idx = parseInt( placeholderMatch[1], 10 );
+				var code = codeBlocks[ idx ];
+				result.push( createBlock( 'core/code', { content: escapeCodeContent( code.content ), language: code.language } ) );
+				lastWasCode = true;
+			} else {
+				// Skip empty paragraphs that follow code blocks.
+				if ( lastWasCode && block.name === 'core/paragraph' && ! content.trim() ) {
+					lastWasCode = false;
+					continue;
+				}
+				lastWasCode = false;
+				result.push( block );
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -39,30 +108,6 @@
 			};
 		}
 		return { title: '', html: html };
-	}
-
-	/**
-	 * Send markdown to the server for parsing via league/commonmark.
-	 */
-	function parseMarkdown( markdown ) {
-		var formData = new FormData();
-		formData.append( 'action', 'mvpd_parse_markdown' );
-		formData.append( 'nonce', mvpdImport.nonce );
-		formData.append( 'markdown', markdown );
-
-		return fetch( mvpdImport.ajaxUrl, {
-			method: 'POST',
-			credentials: 'same-origin',
-			body: formData,
-		} )
-			.then( function ( response ) { return response.json(); } )
-			.then( function ( result ) {
-				if ( result.success && result.data && result.data.html ) {
-					return result.data.html;
-				}
-				var msg = ( result.data && typeof result.data === 'string' ) ? result.data : 'Parse failed.';
-				throw new Error( msg );
-			} );
 	}
 
 	/**
@@ -129,33 +174,35 @@
 						return;
 					}
 
-					showStatus( 'Parsing markdown...' );
+					if ( typeof marked === 'undefined' || ! marked.parse ) {
+						showStatus( 'Markdown parser not loaded.', true );
+						return;
+					}
 
-					parseMarkdown( markdown )
-						.then( function ( html ) {
-							// Auto-set title from first H1 if post title is empty.
-							if ( ! currentTitle ) {
-								var extracted = extractTitle( html );
-								if ( extracted.title ) {
-									dispatch( 'core/editor' ).editPost( { title: extracted.title } );
-									html = extracted.html;
-								}
-							}
+					var html = marked.parse( markdown, { gfm: true, breaks: false } );
 
-							// Convert HTML to Gutenberg blocks.
-							var blocks = rawHandler( { HTML: html } );
+					// Auto-set title from first H1 if post title is empty.
+					if ( ! currentTitle ) {
+						var extracted = extractTitle( html );
+						if ( extracted.title ) {
+							dispatch( 'core/editor' ).editPost( { title: extracted.title } );
+							html = extracted.html;
+						}
+					}
 
-							if ( ! blocks || ! blocks.length ) {
-								showStatus( 'No content found in file.', true );
-								return;
-							}
+					// Extract code blocks before rawHandler mangles them.
+					var codeData = extractCodeBlocks( html );
 
-							dispatch( 'core/block-editor' ).resetBlocks( blocks );
-							showStatus( 'Imported ' + blocks.length + ' blocks.', false );
-						} )
-						.catch( function ( err ) {
-							showStatus( 'Error: ' + ( err.message || 'Parse failed.' ), true );
-						} );
+					// Convert HTML to Gutenberg blocks.
+					var blocks = htmlToBlocks( codeData.html, codeData.codeBlocks );
+
+					if ( ! blocks || ! blocks.length ) {
+						showStatus( 'No content found in file.', true );
+						return;
+					}
+
+					dispatch( 'core/block-editor' ).resetBlocks( blocks );
+					showStatus( 'Imported ' + blocks.length + ' blocks.', false );
 				};
 
 				reader.onerror = function () {

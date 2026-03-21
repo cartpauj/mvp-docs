@@ -19,12 +19,6 @@ define( 'MVPD_VERSION', '1.0.0' );
 define( 'MVPD_URL', plugin_dir_url( __FILE__ ) );
 define( 'MVPD_PATH', plugin_dir_path( __FILE__ ) );
 
-// Prefixed vendor autoloader (league/commonmark and dependencies).
-$mvpd_autoload = MVPD_PATH . 'vendor-prefixed/autoload.php';
-if ( file_exists( $mvpd_autoload ) ) {
-	require_once $mvpd_autoload;
-}
-
 // Core includes.
 require_once MVPD_PATH . 'includes/Settings.php';
 require_once MVPD_PATH . 'includes/PostType.php';
