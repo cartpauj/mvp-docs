@@ -23,24 +23,37 @@ Most documentation plugins are overbuilt. They add custom page builders, proprie
 * Stores content as standard WordPress posts
 * Loads zero scripts or styles outside of doc pages
 * No lock-in — your content is just posts and taxonomies
+* No external dependencies — everything ships with the plugin
 
 **Features**
 
 * **Docs post type** with archive at `/docs/`
 * **Doc Categories** for organizing content
+* **Search** — AJAX-powered typeahead dropdown on the archive and category pages, with a dedicated search results page at `/docs/search/`
 * **Markdown import** — upload a `.md` file and it converts to native Gutenberg blocks (tables, code blocks, lists, and all GFM features)
+* **Import / Export** — export docs, categories, and settings as a JSON file; import on another site
 * **Archive page** — docs grouped by category in a card grid
-* **Category archives** — full list of docs in a category
+* **Category archives** — full list of docs in a category with search bar
+* **Search results page** — dedicated page with breadcrumbs and themed card layout
 * **Breadcrumbs** on single doc pages
-* **Settings** — archive layout (columns, border radius, docs per category), colors, sort order, custom slugs, category ordering via drag-and-drop
-* **Block theme support** — registers proper block templates for single docs, archives, and category pages
+* **Settings** — archive layout (columns, border radius, docs per category), colors, page titles, sort order, custom slugs, category ordering via drag-and-drop
+* **Block theme support** — registers proper block templates for single docs, archives, category pages, and search
 * **Classic theme support** — falls back to PHP templates with `get_header()`/`get_footer()`
 
 **Markdown Import**
 
-The block editor sidebar includes an "Import from Markdown" button. Upload any `.md` file and it gets parsed server-side with full GitHub Flavored Markdown support (via league/commonmark), then converted into native Gutenberg blocks. The first `# Heading` becomes the post title automatically.
+The block editor sidebar includes an "Import from Markdown" button. Upload any `.md` file and it gets parsed client-side with full GitHub Flavored Markdown support (via marked.js), then converted into native Gutenberg blocks. The first `# Heading` becomes the post title automatically.
 
 Supported: headings, bold, italic, links, images, tables, fenced code blocks with syntax hints, task lists, strikethrough, blockquotes, horizontal rules, ordered and unordered lists.
+
+**Import / Export**
+
+Go to Docs > Settings > Import / Export to:
+
+* **Export** docs, categories, and/or settings as a single JSON file
+* **Import** a previously exported file to restore or migrate content between sites
+
+Existing docs with the same title are skipped during import to avoid duplicates. Categories are created automatically if they don't exist.
 
 == Installation ==
 
@@ -59,9 +72,13 @@ Yes. MVP Docs auto-detects whether you're using a block theme or a classic theme
 
 Yes. When editing a doc, open the sidebar and click "Import from Markdown" under Doc Settings. Select a `.md` file and it will be converted to native Gutenberg blocks.
 
+= Can I migrate docs between sites? =
+
+Yes. Use the Import / Export tab under Docs > Settings to export your docs, categories, and settings as a JSON file, then import it on another site.
+
 = Does it add scripts or styles to every page? =
 
-No. CSS and JS are only loaded on doc pages — the archive, category pages, and single docs. Nothing is enqueued globally.
+No. CSS and JS are only loaded on doc pages — the archive, category pages, search results, and single docs. Nothing is enqueued globally.
 
 = Can I change the URL structure? =
 
@@ -73,12 +90,14 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 
 == Screenshots ==
 
-1. Docs archive page with category cards
-2. Single doc with breadcrumbs
-3. Settings — Design tab
-4. Settings — Category Order (drag and drop)
-5. Settings — Permalinks
-6. Markdown import in the block editor sidebar
+1. Docs archive page with category cards and search bar
+2. Search results page
+3. Single doc with breadcrumbs
+4. Settings — Design tab
+5. Settings — Category Order (drag and drop)
+6. Settings — Permalinks
+7. Settings — Import / Export
+8. Markdown import in the block editor sidebar
 
 == Changelog ==
 
