@@ -3,7 +3,7 @@
  * Plugin Name: MVP Docs
  * Plugin URI:  https://github.com/cartpauj/mvp-docs
  * Description: A minimum viable documentation plugin. Lightweight docs CPT with categories, markdown import, and just enough settings to be useful.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      cartpauj
  * Author URI:  https://github.com/cartpauj/mvp-docs
  * License:     GPLv2 or later
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MVPD_VERSION', '1.0.0' );
+define( 'MVPD_VERSION', '1.0.1' );
 define( 'MVPD_URL', plugin_dir_url( __FILE__ ) );
 define( 'MVPD_PATH', plugin_dir_path( __FILE__ ) );
 
