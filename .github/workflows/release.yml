@@ -14,14 +14,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get version
         id: version
         run: |
-          VERSION=$(grep -oP "Version:\s*\K[0-9.]+" mvp-docs.php)
+          VERSION=$(grep "Version:" mvp-docs.php | head -1 | sed 's/.*Version:\s*//' | sed 's/\s*$//')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Check if tag exists
+        id: check
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build zip
+        if: steps.check.outputs.exists == 'false'
         run: |
           mkdir -p build/mvp-docs
           rsync -a --exclude='.git' --exclude='.github' --exclude='build' --exclude='test-files' --exclude='.gitignore' ./ build/mvp-docs/
@@ -29,6 +41,7 @@ jobs:
           zip -r mvp-docs.zip mvp-docs/
 
       - name: Create tag and release
+        if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
