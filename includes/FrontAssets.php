@@ -52,7 +52,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	}
 
 	foreach ( $map as $var => $val ) {
-		$safe_val = preg_replace( '/[^a-zA-Z0-9#(),.\-_%\s]/', '', $val );
+		$safe_val = preg_replace( '/[^a-zA-Z0-9#.\-]/', '', $val );
 		$css     .= $var . ':' . $safe_val . ';';
 	}
 

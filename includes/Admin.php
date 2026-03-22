@@ -234,14 +234,15 @@ add_action( 'wp_ajax_mvpd_import', function () {
 				continue;
 			}
 
-			$existing = get_term_by( 'slug', $cat['slug'] ?? '', 'mvpd_category' );
+			$cat_slug = sanitize_title( $cat['slug'] ?? '' );
+			$existing = get_term_by( 'slug', $cat_slug, 'mvpd_category' );
 			if ( $existing ) {
 				continue;
 			}
 
-			$result = wp_insert_term( $cat['name'], 'mvpd_category', [
-				'slug'        => $cat['slug'] ?? '',
-				'description' => $cat['description'] ?? '',
+			$result = wp_insert_term( sanitize_text_field( $cat['name'] ), 'mvpd_category', [
+				'slug'        => $cat_slug,
+				'description' => sanitize_text_field( $cat['description'] ?? '' ),
 			] );
 
 			if ( ! is_wp_error( $result ) ) {
@@ -294,7 +295,7 @@ add_action( 'wp_ajax_mvpd_import', function () {
 			if ( ! empty( $doc['categories'] ) && is_array( $doc['categories'] ) ) {
 				$term_ids = [];
 				foreach ( $doc['categories'] as $slug ) {
-					$term = get_term_by( 'slug', $slug, 'mvpd_category' );
+					$term = get_term_by( 'slug', sanitize_title( $slug ), 'mvpd_category' );
 					if ( $term ) {
 						$term_ids[] = $term->term_id;
 					}
