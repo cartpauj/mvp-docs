@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep -oP "Version:\s*\K[0-9.]+" mvp-docs.php)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build zip
+        run: |
+          mkdir -p build/mvp-docs
+          rsync -a --exclude='.git' --exclude='.github' --exclude='build' --exclude='test-files' --exclude='.gitignore' ./ build/mvp-docs/
+          cd build
+          zip -r mvp-docs.zip mvp-docs/
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" build/mvp-docs.zip \
+            --title "v$VERSION" \
+            --generate-notes
