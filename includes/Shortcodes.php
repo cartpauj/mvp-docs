@@ -67,6 +67,7 @@ add_shortcode( 'mvpd_category', function () {
 		return '';
 	}
 
+	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 	$cat_docs = new WP_Query( array_merge( [
 		'post_type'      => 'mvp_doc',
 		'posts_per_page' => 200,

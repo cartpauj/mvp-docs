@@ -37,8 +37,8 @@ defined( 'ABSPATH' ) || exit;
 			<th scope="row"><label for="mvpd-columns"><?php esc_html_e( 'Columns', 'mvp-docs' ); ?></label></th>
 			<td>
 				<select name="mvpd_settings[columns]" id="mvpd-columns">
-					<?php foreach ( [ '1', '2', '3', '4' ] as $n ) : ?>
-						<option value="<?php echo esc_attr( $n ); ?>" <?php selected( $s['columns'], $n ); ?>><?php echo esc_html( $n ); ?></option>
+					<?php foreach ( [ '1', '2', '3', '4' ] as $mvpd_n ) : ?>
+						<option value="<?php echo esc_attr( $mvpd_n ); ?>" <?php selected( $s['columns'], $mvpd_n ); ?>><?php echo esc_html( $mvpd_n ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</td>

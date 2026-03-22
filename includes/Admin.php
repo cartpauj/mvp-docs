@@ -202,6 +202,7 @@ add_action( 'wp_ajax_mvpd_import', function () {
 		wp_send_json_error( 'Unauthorized.', 403 );
 	}
 
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; individual fields sanitized below.
 	$raw = isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : '';
 	$data = json_decode( $raw, true );
 
@@ -257,8 +258,16 @@ add_action( 'wp_ajax_mvpd_import', function () {
 			}
 
 			// Skip if a doc with this title already exists.
-			$existing = get_page_by_title( $doc['title'], OBJECT, 'mvp_doc' );
-			if ( $existing ) {
+			$existing = new WP_Query( [
+				'post_type'              => 'mvp_doc',
+				'title'                  => $doc['title'],
+				'posts_per_page'         => 1,
+				'post_status'            => 'any',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			] );
+			if ( $existing->have_posts() ) {
 				$skipped_docs++;
 				continue;
 			}

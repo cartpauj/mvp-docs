@@ -117,6 +117,7 @@ function mvpd_check_slug_conflicts( string $docs_slug, string $category_slug ): 
 		$page = get_page_by_path( $slug, OBJECT, [ 'page', 'post' ] );
 		if ( $page ) {
 			$type_obj       = get_post_type_object( $page->post_type );
+			/* translators: %1$s: slug, %2$s: post type name */
 			$errors[ $key ] = sprintf(
 				__( '"%1$s" conflicts with an existing %2$s.', 'mvp-docs' ),
 				$slug,
@@ -131,6 +132,7 @@ function mvpd_check_slug_conflicts( string $docs_slug, string $category_slug ): 
 				continue;
 			}
 			if ( isset( $cpt->rewrite['slug'] ) && $cpt->rewrite['slug'] === $slug ) {
+				/* translators: %1$s: slug, %2$s: post type name */
 				$errors[ $key ] = sprintf(
 					__( '"%1$s" conflicts with the "%2$s" post type.', 'mvp-docs' ),
 					$slug,
@@ -146,6 +148,7 @@ function mvpd_check_slug_conflicts( string $docs_slug, string $category_slug ): 
 				continue;
 			}
 			if ( isset( $tax->rewrite['slug'] ) && $tax->rewrite['slug'] === $slug ) {
+				/* translators: %1$s: slug, %2$s: taxonomy name */
 				$errors[ $key ] = sprintf(
 					__( '"%1$s" conflicts with the "%2$s" taxonomy.', 'mvp-docs' ),
 					$slug,

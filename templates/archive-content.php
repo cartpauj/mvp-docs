@@ -10,8 +10,8 @@
 defined( 'ABSPATH' ) || exit;
 
 $mvpd_settings  = mvpd_get_settings();
-$per_cat        = (int) $mvpd_settings['docs_per_category'];
-$sort_args      = mvpd_get_sort_args();
+$mvpd_per_cat        = (int) $mvpd_settings['docs_per_category'];
+$mvpd_sort_args      = mvpd_get_sort_args();
 ?>
 
 <div class="mvpd-archive">
@@ -29,20 +29,21 @@ $sort_args      = mvpd_get_sort_args();
 		<div class="mvpd-grid">
 			<?php foreach ( $categories as $cat ) : ?>
 				<?php
-				$cat_docs = new WP_Query( array_merge( [
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				$mvpd_cat_docs = new WP_Query( array_merge( [
 					'post_type'      => 'mvp_doc',
-					'posts_per_page' => $per_cat + 1,
+					'posts_per_page' => $mvpd_per_cat + 1,
 					'tax_query'      => [ [
 						'taxonomy' => 'mvpd_category',
 						'field'    => 'term_id',
 						'terms'    => $cat->term_id,
 					] ],
-				], $sort_args ) );
+				], $mvpd_sort_args ) );
 
-				$has_more = $cat_docs->post_count > $per_cat;
-				$shown    = 0;
+				$mvpd_has_more = $mvpd_cat_docs->post_count > $mvpd_per_cat;
+				$mvpd_shown    = 0;
 				?>
-				<?php if ( $cat_docs->have_posts() ) : ?>
+				<?php if ( $mvpd_cat_docs->have_posts() ) : ?>
 					<div class="mvpd-card">
 						<div class="mvpd-card-header">
 							<div class="mvpd-card-header-top">
@@ -54,7 +55,7 @@ $sort_args      = mvpd_get_sort_args();
 							<?php endif; ?>
 						</div>
 						<ul class="mvpd-card-list">
-							<?php while ( $cat_docs->have_posts() && $shown < $per_cat ) : $cat_docs->the_post(); $shown++; ?>
+							<?php while ( $mvpd_cat_docs->have_posts() && $mvpd_shown < $mvpd_per_cat ) : $mvpd_cat_docs->the_post(); $mvpd_shown++; ?>
 								<li>
 									<a href="<?php the_permalink(); ?>">
 										<svg class="mvpd-card-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -64,7 +65,7 @@ $sort_args      = mvpd_get_sort_args();
 								</li>
 							<?php endwhile; ?>
 							<?php wp_reset_postdata(); ?>
-							<?php if ( $has_more ) : ?>
+							<?php if ( $mvpd_has_more ) : ?>
 								<li>
 									<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
 										<svg class="mvpd-card-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -81,26 +82,27 @@ $sort_args      = mvpd_get_sort_args();
 	<?php endif; ?>
 
 	<?php
-	$uncategorized = new WP_Query( array_merge( [
+	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+	$mvpd_uncategorized = new WP_Query( array_merge( [
 		'post_type'      => 'mvp_doc',
 		'posts_per_page' => 200,
 		'tax_query'      => [ [
 			'taxonomy' => 'mvpd_category',
 			'operator' => 'NOT EXISTS',
 		] ],
-	], $sort_args ) );
+	], $mvpd_sort_args ) );
 	?>
-	<?php if ( $uncategorized->have_posts() ) : ?>
+	<?php if ( $mvpd_uncategorized->have_posts() ) : ?>
 		<div class="mvpd-grid mvpd-grid--other">
 			<div class="mvpd-card">
 				<div class="mvpd-card-header">
 					<div class="mvpd-card-header-top">
 						<h2 class="mvpd-card-title"><?php esc_html_e( 'Other', 'mvp-docs' ); ?></h2>
-						<span class="mvpd-card-badge"><?php echo esc_html( $uncategorized->found_posts ); ?></span>
+						<span class="mvpd-card-badge"><?php echo esc_html( $mvpd_uncategorized->found_posts ); ?></span>
 					</div>
 				</div>
 				<ul class="mvpd-card-list">
-					<?php while ( $uncategorized->have_posts() ) : $uncategorized->the_post(); ?>
+					<?php while ( $mvpd_uncategorized->have_posts() ) : $mvpd_uncategorized->the_post(); ?>
 						<li>
 							<a href="<?php the_permalink(); ?>">
 								<svg class="mvpd-card-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -115,7 +117,7 @@ $sort_args      = mvpd_get_sort_args();
 		</div>
 	<?php endif; ?>
 
-	<?php if ( ( empty( $categories ) || is_wp_error( $categories ) ) && 0 === $uncategorized->post_count ) : ?>
+	<?php if ( ( empty( $categories ) || is_wp_error( $categories ) ) && 0 === $mvpd_uncategorized->post_count ) : ?>
 		<p><?php esc_html_e( 'No documentation yet.', 'mvp-docs' ); ?></p>
 	<?php endif; ?>
 
