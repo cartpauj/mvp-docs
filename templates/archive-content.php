@@ -29,11 +29,10 @@ $mvpd_sort_args      = mvpd_get_sort_args();
 		<div class="mvpd-grid">
 			<?php foreach ( $categories as $cat ) : ?>
 				<?php
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				$mvpd_cat_docs = new WP_Query( array_merge( [
 					'post_type'      => 'mvp_doc',
 					'posts_per_page' => $mvpd_per_cat + 1,
-					'tax_query'      => [ [
+					'tax_query'      => [ [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 						'taxonomy' => 'mvpd_category',
 						'field'    => 'term_id',
 						'terms'    => $cat->term_id,
@@ -82,11 +81,10 @@ $mvpd_sort_args      = mvpd_get_sort_args();
 	<?php endif; ?>
 
 	<?php
-	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 	$mvpd_uncategorized = new WP_Query( array_merge( [
 		'post_type'      => 'mvp_doc',
 		'posts_per_page' => 200,
-		'tax_query'      => [ [
+		'tax_query'      => [ [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'taxonomy' => 'mvpd_category',
 			'operator' => 'NOT EXISTS',
 		] ],
