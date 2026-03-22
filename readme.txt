@@ -4,7 +4,7 @@ Tags: documentation, docs, knowledge base, markdown
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -100,6 +100,17 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+
+= 1.0.3 =
+* Fix docs archive not filling full width in classic themes with flex layouts
+* Fix search input placeholder text overlapping the search icon
+
+= 1.0.2 =
+* Fix duplicate plugin/author URI
+* Derive MVPD_VERSION from plugin header
+
+= 1.0.1 =
+* Update author URI
 
 = 1.0.0 =
 * Initial release
