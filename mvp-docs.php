@@ -15,9 +15,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MVPD_VERSION', '1.0.1' );
 define( 'MVPD_URL', plugin_dir_url( __FILE__ ) );
 define( 'MVPD_PATH', plugin_dir_path( __FILE__ ) );
+define( 'MVPD_VERSION', get_file_data( __FILE__, [ 'Version' => 'Version' ] )['Version'] );
 
 // Core includes.
 require_once MVPD_PATH . 'includes/Settings.php';
