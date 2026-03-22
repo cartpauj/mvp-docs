@@ -1,5 +1,9 @@
 /* MVP Docs — Archive */
 
+.mvpd-classic-archive {
+	width: 100%;
+}
+
 .mvpd-archive {
 	--mvpd-columns: 3;
 	--mvpd-card-bg: #ffffff;
@@ -37,7 +41,7 @@
 
 .mvpd-search-input {
 	width: 100%;
-	padding: 0.75rem 3.25rem 0.75rem 2.75rem;
+	padding: 0.75rem 3.25rem 0.75rem 2.75rem !important;
 	margin: 0;
 	font-size: 0.95rem;
 	line-height: 1.4;
