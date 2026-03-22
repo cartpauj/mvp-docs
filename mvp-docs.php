@@ -5,7 +5,7 @@
  * Description: A minimum viable documentation plugin. Lightweight docs CPT with categories, markdown import, and just enough settings to be useful.
  * Version:     1.0.0
  * Author:      cartpauj
- * Author URI:  https://cartpauj.com
+ * Author URI:  https://github.com/cartpauj/mvp-docs
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: mvp-docs
