@@ -1,14 +1,14 @@
 === MVP Docs ===
 Contributors: cartpauj
-Tags: documentation, docs, knowledge base, markdown
+Tags: documentation, docs, knowledge base, markdown, ai
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A minimum viable documentation plugin. Lightweight, native, no bloat.
+A lightweight documentation plugin for WordPress. AI-friendly markdown import, native editor, no bloat.
 
 == Description ==
 
@@ -16,7 +16,9 @@ MVP Docs adds a simple documentation system to your WordPress site. It creates a
 
 **Why MVP Docs?**
 
-Most documentation plugins are overbuilt. They add custom page builders, proprietary editors, dozens of database tables, and megabytes of JavaScript. MVP Docs takes the opposite approach:
+AI tools like Claude and ChatGPT are excellent at generating documentation in Markdown format. MVP Docs was built to take advantage of that — paste your AI-generated `.md` files straight into WordPress with a single click. No copy-pasting HTML, no reformatting, no fussing with blocks. Just import and publish.
+
+Beyond the AI workflow, most documentation plugins are overbuilt. They add custom page builders, proprietary editors, dozens of database tables, and megabytes of JavaScript. MVP Docs takes the opposite approach:
 
 * Uses the native WordPress block editor
 * Works with any theme (block themes and classic themes)
@@ -40,9 +42,11 @@ Most documentation plugins are overbuilt. They add custom page builders, proprie
 * **Block theme support** — registers proper block templates for single docs, archives, category pages, and search
 * **Classic theme support** — falls back to PHP templates with `get_header()`/`get_footer()`
 
-**Markdown Import**
+**Markdown Import — Built for AI-Generated Docs**
 
-The block editor sidebar includes an "Import from Markdown" button. Upload any `.md` file and it gets parsed client-side with full GitHub Flavored Markdown support (via marked.js), then converted into native Gutenberg blocks. The first `# Heading` becomes the post title automatically.
+AI tools produce clean, well-structured Markdown. MVP Docs lets you import those `.md` files directly into the block editor with one click. The sidebar includes an "Import from Markdown" button — upload a file and it gets parsed client-side with full GitHub Flavored Markdown support (via marked.js), then converted into native Gutenberg blocks. The first `# Heading` becomes the post title automatically.
+
+Use your favorite AI to generate docs, how-to guides, or knowledge base articles in Markdown, then import them into WordPress without any reformatting.
 
 Supported: headings, bold, italic, links, images, tables, fenced code blocks with syntax hints, task lists, strikethrough, blockquotes, horizontal rules, ordered and unordered lists.
 
@@ -100,6 +104,10 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+
+= 1.0.4 =
+* Update readme's
+* Changed metabox title
 
 = 1.0.3 =
 * Fix docs archive not filling full width in classic themes with flex layouts

@@ -224,7 +224,7 @@
 
 		return el(
 			PluginDocumentSettingPanel,
-			{ name: 'mvpd-tools', title: 'Doc Settings', className: 'mvpd-tools-panel' },
+			{ name: 'mvpd-tools', title: 'Import Doc', className: 'mvpd-tools-panel' },
 			sortOrder !== null
 				? el( TextControl, {
 					label: 'Sort Order',
