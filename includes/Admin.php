@@ -19,7 +19,7 @@ add_action( 'admin_init', function () {
 // Add settings submenu.
 add_action( 'admin_menu', function () {
 	add_submenu_page(
-		'edit.php?post_type=mvp_doc',
+		'edit.php?post_type=mvpd_doc',
 		__( 'Settings', 'mvp-docs' ),
 		__( 'Settings', 'mvp-docs' ),
 		'manage_options',
@@ -30,7 +30,7 @@ add_action( 'admin_menu', function () {
 
 // Enqueue admin assets on settings page.
 add_action( 'admin_enqueue_scripts', function ( $hook ) {
-	if ( 'mvp_doc_page_mvpd-settings' !== $hook ) {
+	if ( 'mvpd_doc_page_mvpd-settings' !== $hook ) {
 		return;
 	}
 
@@ -93,7 +93,7 @@ function mvpd_render_settings_page(): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab display only.
 	$tab      = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'design';
 	$s        = mvpd_get_settings();
-	$base_url = admin_url( 'edit.php?post_type=mvp_doc&page=mvpd-settings' );
+	$base_url = admin_url( 'edit.php?post_type=mvpd_doc&page=mvpd-settings' );
 
 	include MVPD_PATH . 'templates/admin/settings-page.php';
 }
@@ -133,8 +133,8 @@ add_action( 'wp_ajax_mvpd_export', function () {
 		wp_send_json_error( 'Unauthorized.', 403 );
 	}
 
-	$include_docs     = ! empty( $_POST['docs'] ) && '1' === $_POST['docs'];
-	$include_settings = ! empty( $_POST['settings'] ) && '1' === $_POST['settings'];
+	$include_docs     = ! empty( $_POST['docs'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['docs'] ) );
+	$include_settings = ! empty( $_POST['settings'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['settings'] ) );
 
 	$export = [ 'version' => MVPD_VERSION ];
 
@@ -161,7 +161,7 @@ add_action( 'wp_ajax_mvpd_export', function () {
 		}
 
 		$docs = new WP_Query( [
-			'post_type'      => 'mvp_doc',
+			'post_type'      => 'mvpd_doc',
 			'posts_per_page' => -1,
 			'post_status'    => 'any',
 		] );
@@ -202,8 +202,13 @@ add_action( 'wp_ajax_mvpd_import', function () {
 		wp_send_json_error( 'Unauthorized.', 403 );
 	}
 
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; individual fields sanitized below.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; individual fields sanitized after json_decode below.
 	$raw = isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : '';
+
+	if ( ! is_string( $raw ) ) {
+		wp_send_json_error( __( 'Invalid data.', 'mvp-docs' ) );
+	}
+
 	$data = json_decode( $raw, true );
 
 	if ( ! is_array( $data ) || empty( $data['version'] ) ) {
@@ -260,8 +265,8 @@ add_action( 'wp_ajax_mvpd_import', function () {
 
 			// Skip if a doc with this title already exists.
 			$existing = new WP_Query( [
-				'post_type'              => 'mvp_doc',
-				'title'                  => $doc['title'],
+				'post_type'              => 'mvpd_doc',
+				'title'                  => sanitize_text_field( $doc['title'] ),
 				'posts_per_page'         => 1,
 				'post_status'            => 'any',
 				'no_found_rows'          => true,
@@ -274,12 +279,12 @@ add_action( 'wp_ajax_mvpd_import', function () {
 			}
 
 			$post_id = wp_insert_post( [
-				'post_type'    => 'mvp_doc',
+				'post_type'    => 'mvpd_doc',
 				'post_title'   => sanitize_text_field( $doc['title'] ),
 				'post_name'    => sanitize_title( $doc['slug'] ?? '' ),
 				'post_content' => wp_kses_post( $doc['content'] ?? '' ),
 				'post_excerpt' => sanitize_text_field( $doc['excerpt'] ?? '' ),
-				'post_status'  => in_array( $doc['status'] ?? '', [ 'publish', 'draft', 'private' ], true ) ? $doc['status'] : 'draft',
+				'post_status'  => in_array( $doc['status'] ?? '', [ 'publish', 'draft', 'private' ], true ) ? sanitize_key( $doc['status'] ) : 'draft',
 			] );
 
 			if ( is_wp_error( $post_id ) ) {

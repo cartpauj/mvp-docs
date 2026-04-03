@@ -24,7 +24,7 @@ function mvpd_get_slugs(): array {
 function mvpd_register_types(): void {
 	$slugs = mvpd_get_slugs();
 
-	register_post_type( 'mvp_doc', [
+	register_post_type( 'mvpd_doc', [
 		'labels'       => [
 			'name'               => __( 'Docs', 'mvp-docs' ),
 			'singular_name'      => __( 'Doc', 'mvp-docs' ),
@@ -47,7 +47,7 @@ function mvpd_register_types(): void {
 		'menu_icon'    => 'dashicons-book-alt',
 	] );
 
-	register_taxonomy( 'mvpd_category', 'mvp_doc', [
+	register_taxonomy( 'mvpd_category', 'mvpd_doc', [
 		'labels'       => [
 			'name'              => __( 'Doc Categories', 'mvp-docs' ),
 			'singular_name'     => __( 'Doc Category', 'mvp-docs' ),
@@ -68,7 +68,7 @@ function mvpd_register_types(): void {
 		'rewrite'           => [ 'slug' => $slugs['category'], 'with_front' => false ],
 	] );
 
-	register_post_meta( 'mvp_doc', 'mvpd_sort_order', [
+	register_post_meta( 'mvpd_doc', 'mvpd_sort_order', [
 		'show_in_rest'      => true,
 		'single'            => true,
 		'type'              => 'integer',
@@ -86,7 +86,7 @@ add_action( 'init', function () {
 	$slugs = mvpd_get_slugs();
 	add_rewrite_rule(
 		'^' . preg_quote( $slugs['docs'], '/' ) . '/search/?$',
-		'index.php?post_type=mvp_doc&mvpd_search=1',
+		'index.php?post_type=mvpd_doc&mvpd_search=1',
 		'top'
 	);
 } );
@@ -110,7 +110,7 @@ add_action( 'pre_get_posts', function ( $query ) {
 		return;
 	}
 
-	if ( $query->is_post_type_archive( 'mvp_doc' ) || $query->is_tax( 'mvpd_category' ) ) {
+	if ( $query->is_post_type_archive( 'mvpd_doc' ) || $query->is_tax( 'mvpd_category' ) ) {
 		$sort = mvpd_get_sort_args();
 		$query->set( 'orderby', $sort['orderby'] );
 		$query->set( 'order', $sort['order'] );

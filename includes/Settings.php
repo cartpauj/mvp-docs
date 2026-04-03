@@ -53,7 +53,7 @@ function mvpd_sanitize_settings( $input ): array {
 
 	$clean = [];
 
-	$clean['columns']           = in_array( $input['columns'] ?? '', [ '1', '2', '3', '4' ], true ) ? $input['columns'] : $defaults['columns'];
+	$clean['columns']           = in_array( $input['columns'] ?? '', [ '1', '2', '3', '4' ], true ) ? sanitize_text_field( $input['columns'] ) : $defaults['columns'];
 	$clean['card_bg']           = sanitize_hex_color( $input['card_bg'] ?? '' ) ?: $defaults['card_bg'];
 	$clean['card_border']       = sanitize_hex_color( $input['card_border'] ?? '' ) ?: $defaults['card_border'];
 	$clean['header_bg']         = sanitize_hex_color( $input['header_bg'] ?? '' ) ?: '';
@@ -68,8 +68,8 @@ function mvpd_sanitize_settings( $input ): array {
 	$clean['archive_subtitle']  = sanitize_text_field( $input['archive_subtitle'] ?? $defaults['archive_subtitle'] );
 	$clean['category_title']    = sanitize_text_field( $input['category_title'] ?? $defaults['category_title'] );
 	$clean['search_title']      = sanitize_text_field( $input['search_title'] ?? $defaults['search_title'] );
-	$clean['sort_by']           = in_array( $input['sort_by'] ?? '', [ 'title', 'date', 'modified' ], true ) ? $input['sort_by'] : $defaults['sort_by'];
-	$clean['sort_order']        = in_array( $input['sort_order'] ?? '', [ 'asc', 'desc' ], true ) ? $input['sort_order'] : $defaults['sort_order'];
+	$clean['sort_by']           = in_array( $input['sort_by'] ?? '', [ 'title', 'date', 'modified' ], true ) ? sanitize_key( $input['sort_by'] ) : $defaults['sort_by'];
+	$clean['sort_order']        = in_array( $input['sort_order'] ?? '', [ 'asc', 'desc' ], true ) ? sanitize_key( $input['sort_order'] ) : $defaults['sort_order'];
 
 	// Slug settings.
 	$docs_slug     = sanitize_title( $input['docs_slug'] ?? 'docs' );
@@ -128,7 +128,7 @@ function mvpd_check_slug_conflicts( string $docs_slug, string $category_slug ): 
 
 		$cpts = get_post_types( [ 'public' => true ], 'objects' );
 		foreach ( $cpts as $cpt ) {
-			if ( 'mvp_doc' === $cpt->name ) {
+			if ( 'mvpd_doc' === $cpt->name ) {
 				continue;
 			}
 			if ( isset( $cpt->rewrite['slug'] ) && $cpt->rewrite['slug'] === $slug ) {

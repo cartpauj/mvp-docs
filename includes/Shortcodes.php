@@ -46,14 +46,18 @@ add_shortcode( 'mvpd_archive', function () {
 } );
 
 add_shortcode( 'mvpd_search', function () {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search display only.
-	$search_query = sanitize_text_field( wp_unslash( $_GET['mvpd_s'] ?? '' ) );
-	$search_docs  = new WP_Query( [
-		'post_type'      => 'mvp_doc',
-		'posts_per_page' => 200,
-		's'              => $search_query,
-		'post_status'    => 'publish',
-	] );
+	$search_query = isset( $_GET['mvpd_s'] ) ? sanitize_text_field( wp_unslash( $_GET['mvpd_s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read-only search; nonce would break bookmarkable/shareable URLs (same pattern as core ?s= search).
+
+	if ( '' !== $search_query ) {
+		$search_docs = new WP_Query( [
+			'post_type'      => 'mvpd_doc',
+			'posts_per_page' => 200,
+			's'              => $search_query,
+			'post_status'    => 'publish',
+		] );
+	} else {
+		$search_docs = new WP_Query();
+	}
 
 	ob_start();
 	include MVPD_PATH . 'templates/search-content.php';
@@ -68,7 +72,7 @@ add_shortcode( 'mvpd_category', function () {
 	}
 
 	$cat_docs = new WP_Query( array_merge( [
-		'post_type'      => 'mvp_doc',
+		'post_type'      => 'mvpd_doc',
 		'posts_per_page' => 200,
 		'tax_query'      => [ [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'taxonomy' => 'mvpd_category',

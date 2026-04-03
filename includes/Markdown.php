@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 add_action( 'enqueue_block_editor_assets', function () {
 	$screen = get_current_screen();
 
-	if ( ! $screen || 'mvp_doc' !== $screen->post_type ) {
+	if ( ! $screen || 'mvpd_doc' !== $screen->post_type ) {
 		return;
 	}
 

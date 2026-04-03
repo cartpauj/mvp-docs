@@ -10,17 +10,18 @@ defined( 'ABSPATH' ) || exit;
 // Enqueue front-end CSS on doc pages.
 add_action( 'wp_enqueue_scripts', function () {
 	$is_search   = (bool) get_query_var( 'mvpd_search' );
-	$is_doc_page = is_post_type_archive( 'mvp_doc' ) || is_tax( 'mvpd_category' ) || is_singular( 'mvp_doc' ) || $is_search;
+	$is_doc_page = is_post_type_archive( 'mvpd_doc' ) || is_tax( 'mvpd_category' ) || is_singular( 'mvpd_doc' ) || $is_search;
 
 	if ( $is_doc_page ) {
 		wp_enqueue_style( 'mvpd-archive', MVPD_URL . 'assets/front/archive.css', [], MVPD_VERSION );
 	}
 
-	if ( is_post_type_archive( 'mvp_doc' ) || is_tax( 'mvpd_category' ) || $is_search ) {
+	if ( is_post_type_archive( 'mvpd_doc' ) || is_tax( 'mvpd_category' ) || $is_search ) {
 		$slugs = mvpd_get_slugs();
 		wp_enqueue_script( 'mvpd-archive-search', MVPD_URL . 'assets/front/archive-search.js', [], MVPD_VERSION, true );
 		wp_localize_script( 'mvpd-archive-search', 'mvpdSearch', [
 			'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+			'nonce'     => wp_create_nonce( 'mvpd_search' ),
 			'searchUrl' => home_url( '/' . $slugs['docs'] . '/search/' ),
 		] );
 	}
@@ -28,7 +29,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // Output CSS variables from settings.
 add_action( 'wp_enqueue_scripts', function () {
-	if ( ! is_post_type_archive( 'mvp_doc' ) && ! is_tax( 'mvpd_category' ) && ! get_query_var( 'mvpd_search' ) ) {
+	if ( ! is_post_type_archive( 'mvpd_doc' ) && ! is_tax( 'mvpd_category' ) && ! get_query_var( 'mvpd_search' ) ) {
 		return;
 	}
 
@@ -57,7 +58,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	}
 
 	$css .= '}';
-	wp_add_inline_style( 'mvpd-archive', $css );
+	wp_add_inline_style( 'mvpd-archive', wp_strip_all_tags( $css ) );
 }, 20 );
 
 // AJAX: search docs.
@@ -65,7 +66,8 @@ add_action( 'wp_ajax_mvpd_search_docs', 'mvpd_ajax_search_docs' );
 add_action( 'wp_ajax_nopriv_mvpd_search_docs', 'mvpd_ajax_search_docs' );
 
 function mvpd_ajax_search_docs(): void {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read-only search.
+	check_ajax_referer( 'mvpd_search', 'nonce' );
+
 	$query = sanitize_text_field( wp_unslash( $_GET['mvpd_s'] ?? '' ) );
 
 	if ( strlen( $query ) < 2 ) {
@@ -73,7 +75,7 @@ function mvpd_ajax_search_docs(): void {
 	}
 
 	$results = new WP_Query( [
-		'post_type'      => 'mvp_doc',
+		'post_type'      => 'mvpd_doc',
 		'posts_per_page' => 10,
 		's'              => $query,
 		'post_status'    => 'publish',

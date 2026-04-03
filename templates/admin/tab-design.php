@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 		</tr>
 		<tr>
 			<th scope="row"><label for="mvpd-archive-subtitle"><?php esc_html_e( 'Subtitle', 'mvp-docs' ); ?></label></th>
-			<td><input type="text" name="mvpd_settings[archive_subtitle]" id="mvpd-archive-subtitle" value="<?php echo esc_attr( $s['archive_subtitle'] ); ?>" class="large-text" /></td>
+			<td><input type="text" name="mvpd_settings[archive_subtitle]" id="mvpd-archive-subtitle" value="<?php echo esc_attr( $s['archive_subtitle'] ); ?>" class="regular-text" /></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="mvpd-category-title"><?php esc_html_e( 'Category Page Title', 'mvp-docs' ); ?></label></th>

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="mvpd-archive">
 	<nav class="mvpd-breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumbs', 'mvp-docs' ); ?>">
-		<a href="<?php echo esc_url( get_post_type_archive_link( 'mvp_doc' ) ); ?>"><?php esc_html_e( 'Docs', 'mvp-docs' ); ?></a>
+		<a href="<?php echo esc_url( get_post_type_archive_link( 'mvpd_doc' ) ); ?>"><?php esc_html_e( 'Docs', 'mvp-docs' ); ?></a>
 		<span class="mvpd-crumb-sep">/</span>
 		<span class="mvpd-crumb-current"><?php echo esc_html( $term->name ); ?></span>
 	</nav>

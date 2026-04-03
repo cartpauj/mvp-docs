@@ -12,7 +12,7 @@
 
 	function fetchResults( query ) {
 		var xhr = new XMLHttpRequest();
-		xhr.open( 'GET', mvpdSearch.ajaxUrl + '?action=mvpd_search_docs&mvpd_s=' + encodeURIComponent( query ) );
+		xhr.open( 'GET', mvpdSearch.ajaxUrl + '?action=mvpd_search_docs&nonce=' + encodeURIComponent( mvpdSearch.nonce ) + '&mvpd_s=' + encodeURIComponent( query ) );
 		xhr.onload = function () {
 			if ( xhr.status !== 200 ) return;
 			var data = JSON.parse( xhr.responseText );
