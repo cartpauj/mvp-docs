@@ -4,7 +4,7 @@ Tags: documentation, docs, knowledge base, markdown, ai
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,9 +104,11 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+= 1.0.7 =
+* First vs published to WP.org
+
 = 1.0.6 =
 * Fixed a couple of non-translatable strings
-* First vs published to WP.org
 
 = 1.0.5 =
 * Rename custom post type from mvp_doc to mvpd_doc for unique prefix compliance
