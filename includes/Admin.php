@@ -67,14 +67,14 @@ add_action( 'wp_ajax_mvpd_save_category_order', function () {
 	check_ajax_referer( 'mvpd_settings', 'nonce' );
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( 'Unauthorized.', 403 );
+		wp_send_json_error( __( 'Unauthorized.', 'mvp-docs' ), 403 );
 	}
 
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of IDs, sanitized below.
 	$order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : [];
 
 	if ( ! is_array( $order ) ) {
-		wp_send_json_error( 'Invalid data.' );
+		wp_send_json_error( __( 'Invalid data.', 'mvp-docs' ) );
 	}
 
 	$clean = array_filter( array_map( 'absint', $order ) );
@@ -130,7 +130,7 @@ add_action( 'wp_ajax_mvpd_export', function () {
 	check_ajax_referer( 'mvpd_export_import', 'nonce' );
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( 'Unauthorized.', 403 );
+		wp_send_json_error( __( 'Unauthorized.', 'mvp-docs' ), 403 );
 	}
 
 	$include_docs     = ! empty( $_POST['docs'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['docs'] ) );
@@ -199,7 +199,7 @@ add_action( 'wp_ajax_mvpd_import', function () {
 	check_ajax_referer( 'mvpd_export_import', 'nonce' );
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( 'Unauthorized.', 403 );
+		wp_send_json_error( __( 'Unauthorized.', 'mvp-docs' ), 403 );
 	}
 
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; individual fields sanitized after json_decode below.
