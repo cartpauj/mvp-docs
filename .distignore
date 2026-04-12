@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.distignore
+.DS_Store
+Thumbs.db
+build
+test-files
+README.md
+RELEASE.md
+*.log
