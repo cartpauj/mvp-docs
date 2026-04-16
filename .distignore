@@ -4,8 +4,12 @@
 .distignore
 .DS_Store
 Thumbs.db
+*.log
+.claude
+CLAUDE.md
+bin
+.wordpress-org
 build
-test-files
 README.md
 RELEASE.md
-*.log
+test-files

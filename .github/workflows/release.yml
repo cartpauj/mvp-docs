@@ -39,7 +39,7 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         run: |
           mkdir -p build/mvp-docs
-          rsync -a --exclude='.git' --exclude='.github' --exclude='build' --exclude='test-files' --exclude='.gitignore' ./ build/mvp-docs/
+          rsync -a --exclude-from='.distignore' --exclude='build' ./ build/mvp-docs/
           cd build
           zip -r mvp-docs.zip mvp-docs/
 
