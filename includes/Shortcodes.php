@@ -8,23 +8,23 @@
 defined( 'ABSPATH' ) || exit;
 
 add_shortcode( 'mvpd_archive_header', function () {
-	$s   = mvpd_get_settings();
+	$s    = mvpd_get_settings();
 	$html = '';
 
 	if ( $s['archive_title'] ) {
-		$html .= '<h1>' . esc_html( $s['archive_title'] ) . '</h1>';
+		$html .= '<h1 class="mvpd-page-title">' . esc_html( $s['archive_title'] ) . '</h1>';
 	}
 	if ( $s['archive_subtitle'] ) {
-		$html .= '<p>' . esc_html( $s['archive_subtitle'] ) . '</p>';
+		$html .= '<p class="mvpd-page-subtitle">' . esc_html( $s['archive_subtitle'] ) . '</p>';
 	}
 
-	return $html;
+	return $html ? '<div class="mvpd-page-header">' . $html . '</div>' : '';
 } );
 
 add_shortcode( 'mvpd_category_header', function () {
 	$s = mvpd_get_settings();
 	if ( $s['category_title'] ) {
-		return '<h1>' . esc_html( $s['category_title'] ) . '</h1>';
+		return '<div class="mvpd-page-header"><h1 class="mvpd-page-title">' . esc_html( $s['category_title'] ) . '</h1></div>';
 	}
 	return '';
 } );
@@ -32,7 +32,7 @@ add_shortcode( 'mvpd_category_header', function () {
 add_shortcode( 'mvpd_search_header', function () {
 	$s = mvpd_get_settings();
 	if ( $s['search_title'] ) {
-		return '<h1>' . esc_html( $s['search_title'] ) . '</h1>';
+		return '<div class="mvpd-page-header"><h1 class="mvpd-page-title">' . esc_html( $s['search_title'] ) . '</h1></div>';
 	}
 	return '';
 } );

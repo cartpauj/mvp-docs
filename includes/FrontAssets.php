@@ -29,12 +29,12 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // Output CSS variables from settings.
 add_action( 'wp_enqueue_scripts', function () {
-	if ( ! is_post_type_archive( 'mvpd_doc' ) && ! is_tax( 'mvpd_category' ) && ! get_query_var( 'mvpd_search' ) ) {
+	if ( ! is_post_type_archive( 'mvpd_doc' ) && ! is_tax( 'mvpd_category' ) && ! get_query_var( 'mvpd_search' ) && ! is_singular( 'mvpd_doc' ) ) {
 		return;
 	}
 
 	$s   = mvpd_get_settings();
-	$css = '.mvpd-archive {';
+	$css = '.mvpd-archive, .mvpd-page-header, .mvpd-single-doc {';
 
 	$map = [
 		'--mvpd-columns'       => $s['columns'],

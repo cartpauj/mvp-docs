@@ -41,6 +41,7 @@ Beyond the AI workflow, most documentation plugins are overbuilt. They add custo
 * **Settings** — archive layout (columns, border radius, docs per category), colors, page titles, sort order, custom slugs, category ordering via drag-and-drop
 * **Block theme support** — registers proper block templates for single docs, archives, category pages, and search
 * **Classic theme support** — falls back to PHP templates with `get_header()`/`get_footer()`
+* **WP-CLI** — full command-line coverage so an AI agent or shell script can configure and populate a docs site without ever opening wp-admin
 
 **Markdown Import — Built for AI-Generated Docs**
 
@@ -58,6 +59,60 @@ Go to Docs > Settings > Import / Export to:
 * **Import** a previously exported file to restore or migrate content between sites
 
 Existing docs with the same title are skipped during import to avoid duplicates. Categories are created automatically if they don't exist.
+
+**WP-CLI**
+
+Every admin action has a command-line equivalent, so a docs site can be stood up and populated entirely from a shell script or AI agent. Run `wp mvp-docs <command> --help` for full details on any command below.
+
+*Content*
+
+`wp mvp-docs import-md <file>`
+Import a Markdown file as a doc. Output is byte-identical to the sidebar Markdown importer — same blocks, same title extraction from the first `#` heading.
+
+`wp mvp-docs import-raw <file>`
+Import a raw HTML file as a doc. Block-commented HTML is preserved as-is; plain HTML renders as a Classic block in the editor.
+
+Both import commands accept:
+* `--title=<text>` — override the extracted title
+* `--slug=<slug>` — explicit post slug
+* `--excerpt=<text>` — short description shown on category/search pages
+* `--category=<slug>` — assign to this category (created if missing)
+* `--sort-order=<n>` — in-category sort priority (lower appears first)
+* `--status=<publish|draft|private>` — post status (default: publish)
+* `--dry-run` — print the generated markup instead of creating a post
+
+*Backup and migration*
+
+`wp mvp-docs export [--docs] [--settings] [--output=<file>] [--pretty]`
+Dump docs, categories, settings, and category order to a single JSON bundle. Omitting both flags exports everything. Pipe to stdout or write to a file.
+
+`wp mvp-docs import <file>`
+Restore a JSON bundle. Docs are deduplicated by title, so running the same import twice is safe.
+
+*Structure*
+
+`wp mvp-docs reorder-categories <slug-or-id>...`
+Set the display order of categories. Accepts term IDs or slugs.
+
+*Settings*
+
+`wp mvp-docs settings list [--format=table|json|yaml|csv]`
+Show every setting with its current value, description, and allowed form — self-documenting so you never have to read the source to discover what's configurable.
+
+`wp mvp-docs settings get <key>`
+Print a single setting's value.
+
+`wp mvp-docs settings set <key=value>...`
+Update one or more settings. Values run through the same sanitizer as the admin UI; if a value is rejected (e.g. `columns=7` when the allowed range is 1–4), a warning names the allowed form and shows the actual saved value. Changing `docs_slug` or `category_slug` auto-flushes rewrite rules.
+
+*Quick start for AI agents*
+
+    wp plugin activate mvp-docs
+    wp mvp-docs settings set docs_slug=kb archive_title="Knowledge Base"
+    wp term create mvpd_category "Getting Started" --slug=getting-started
+    wp mvp-docs reorder-categories getting-started
+    wp mvp-docs import-md ./intro.md --category=getting-started --sort-order=1
+    wp mvp-docs export --output=backup.json
 
 == Installation ==
 
@@ -88,6 +143,10 @@ No. CSS and JS are only loaded on doc pages — the archive, category pages, sea
 
 Yes. Go to Docs > Settings > Permalinks to change the docs slug and category slug.
 
+= Can I script setup for an AI agent or CI pipeline? =
+
+Yes. MVP Docs ships a complete WP-CLI command set — activate the plugin, configure settings, create categories, and import Markdown or HTML docs all from a shell script. See the "WP-CLI" section above and run `wp mvp-docs <command> --help` for detailed options.
+
 = What happens if I deactivate the plugin? =
 
 Your content stays. Docs are standard WordPress posts — they remain in your database and can be accessed via the admin even without the plugin active.
@@ -104,6 +163,16 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+= 1.0.8 =
+* Added full WP-CLI command set (`wp mvp-docs import-md|import-raw|export|import|reorder-categories|settings`) — configure and populate a docs site without touching wp-admin
+* Markdown CLI import produces byte-identical output to the sidebar importer
+* `wp mvp-docs settings list` now shows description and allowed-value form for every setting; `settings set` warns when a value is rejected and explains what's allowed
+* Slug changes via CLI auto-flush rewrite rules
+* Unified head typography and spacing across archive, category, and single doc views
+* Added `.mvpd-page-header`, `.mvpd-page-title`, `.mvpd-page-subtitle` classes to header shortcode output so themes can't override plugin spacing
+* Search button icon now uses `--mvpd-card-bg` for reliable contrast on dark accent colors
+* Breadcrumbs now use the plugin's link color (with explicit `:visited` handling to beat classic themes)
+
 = 1.0.7 =
 * First vs published to WP.org
 

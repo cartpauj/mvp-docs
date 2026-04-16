@@ -32,6 +32,10 @@ if ( is_admin() ) {
 	require_once MVPD_PATH . 'includes/Admin.php';
 }
 
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once MVPD_PATH . 'includes/CLI.php';
+}
+
 // Activation/deactivation.
 register_activation_hook( __FILE__, function () {
 	require_once MVPD_PATH . 'includes/Settings.php';

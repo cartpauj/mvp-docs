@@ -12,7 +12,9 @@ get_header();
 
 <?php while ( have_posts() ) : the_post(); ?>
 	<div class="mvpd-single-doc">
-		<h1><?php echo esc_html( get_the_title() ); ?></h1>
+		<div class="mvpd-page-header">
+			<h1 class="mvpd-page-title"><?php echo esc_html( get_the_title() ); ?></h1>
+		</div>
 		<div class="entry-content">
 			<?php the_content(); ?>
 		</div>
