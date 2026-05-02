@@ -4,7 +4,7 @@ Tags: documentation, docs, knowledge base, markdown, ai
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,9 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+= 1.1.1 =
+* Fixed `/docs/search/` 404 on fresh activation — search rewrite rule is now registered alongside the post type so activation's flush captures it (no manual permalink save needed)
+
 = 1.1.0 =
 * Added full WP-CLI command set (`wp mvp-docs import-md|import-raw|export|import|reorder-categories|settings`) — configure and populate a docs site without touching wp-admin
 * Markdown CLI import produces byte-identical output to the sidebar importer
