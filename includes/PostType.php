@@ -68,6 +68,12 @@ function mvpd_register_types(): void {
 		'rewrite'           => [ 'slug' => $slugs['category'], 'with_front' => false ],
 	] );
 
+	add_rewrite_rule(
+		'^' . preg_quote( $slugs['docs'], '/' ) . '/search/?$',
+		'index.php?post_type=mvpd_doc&mvpd_search=1',
+		'top'
+	);
+
 	register_post_meta( 'mvpd_doc', 'mvpd_sort_order', [
 		'show_in_rest'      => true,
 		'single'            => true,
@@ -80,16 +86,6 @@ function mvpd_register_types(): void {
 	] );
 }
 add_action( 'init', 'mvpd_register_types' );
-
-// Docs search rewrite.
-add_action( 'init', function () {
-	$slugs = mvpd_get_slugs();
-	add_rewrite_rule(
-		'^' . preg_quote( $slugs['docs'], '/' ) . '/search/?$',
-		'index.php?post_type=mvpd_doc&mvpd_search=1',
-		'top'
-	);
-} );
 
 add_filter( 'query_vars', function ( $vars ) {
 	$vars[] = 'mvpd_search';
