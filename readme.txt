@@ -33,7 +33,7 @@ Beyond the AI workflow, most documentation plugins are overbuilt. They add custo
 * **Doc Categories** for organizing content
 * **Search** — AJAX-powered typeahead dropdown on the archive and category pages, with a dedicated search results page at `/docs/search/`
 * **Markdown import** — upload a `.md` file and it converts to native Gutenberg blocks (tables, code blocks, lists, and all GFM features)
-* **Import / Export** — export docs, categories, and settings as a JSON file; import on another site
+* **Import / Export** — export docs, categories, and settings as a JSON file, or include referenced images in a zip bundle; import on another site
 * **Archive page** — docs grouped by category in a card grid
 * **Category archives** — full list of docs in a category with search bar
 * **Search results page** — dedicated page with breadcrumbs and themed card layout
@@ -83,11 +83,11 @@ Both import commands accept:
 
 *Backup and migration*
 
-`wp mvp-docs export [--docs] [--settings] [--output=<file>] [--pretty]`
-Dump docs, categories, settings, and category order to a single JSON bundle. Omitting both flags exports everything. Pipe to stdout or write to a file.
+`wp mvp-docs export [--docs] [--settings] [--with-images] [--output=<file>] [--pretty]`
+Dump docs, categories, settings, and category order to a single JSON bundle. Omitting `--docs` and `--settings` exports everything. Pipe to stdout or write to a file. Pass `--with-images` to bundle referenced images into a zip alongside `export.json` (requires `--output`).
 
 `wp mvp-docs import <file>`
-Restore a JSON bundle. Docs are deduplicated by title, so running the same import twice is safe.
+Restore a previously exported file. Auto-detects `.json` and `.zip` bundles; for zips, referenced images are sideloaded into the media library and content URLs are rewritten. Docs are deduplicated by title, so running the same import twice is safe.
 
 *Structure*
 
@@ -133,7 +133,7 @@ Yes. When editing a doc, open the sidebar and click "Import from Markdown" under
 
 = Can I migrate docs between sites? =
 
-Yes. Use the Import / Export tab under Docs > Settings to export your docs, categories, and settings as a JSON file, then import it on another site.
+Yes. Use the Import / Export tab under Docs > Settings to export your docs, categories, and settings as a JSON file, then import it on another site. Tick "Include images" to produce a zip bundle that ships referenced media alongside the data.
 
 = Does it add scripts or styles to every page? =
 
