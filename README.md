@@ -15,7 +15,7 @@ It's a lightweight MVP plugin designed to get you up and running with a document
 - Docs post type with configurable archive at `/docs/`
 - Doc categories with drag-and-drop ordering
 - AJAX search with typeahead dropdown and dedicated results page
-- Import/export docs, categories, and settings as JSON
+- Import/export docs, categories, and settings as JSON, or as a zip bundle that ships referenced images
 - Configurable colors, layout, slugs, and page titles
 - Block theme and classic theme support
 - Zero scripts or styles outside doc pages
@@ -44,8 +44,8 @@ Run `wp mvp-docs <command> --help` for full option details on any command.
 |---|---|
 | `wp mvp-docs import-md <file>` | Import a Markdown file as a doc (byte-identical to the sidebar importer) |
 | `wp mvp-docs import-raw <file>` | Import a raw HTML file as a doc (block markup preserved if present) |
-| `wp mvp-docs export` | Dump docs, categories, settings, and order to a JSON bundle |
-| `wp mvp-docs import <file>` | Restore a JSON bundle (dedupes by title, safe to re-run) |
+| `wp mvp-docs export [--with-images]` | Dump docs, categories, settings, and order to JSON; with `--with-images` produces a zip including referenced media |
+| `wp mvp-docs import <file>` | Restore a `.json` or `.zip` bundle (auto-detected; sideloads images on zip; dedupes by title, safe to re-run) |
 | `wp mvp-docs reorder-categories <refs>...` | Set category display order (IDs or slugs) |
 | `wp mvp-docs settings list` | Show every setting with description and allowed form |
 | `wp mvp-docs settings get <key>` | Read a single setting |
