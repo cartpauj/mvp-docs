@@ -128,7 +128,7 @@ class MVPD_CLI {
 	}
 
 	/**
-	 * Export docs, settings, categories, and category order to a JSON bundle.
+	 * Export docs, settings, categories, and category order to a JSON or zip bundle.
 	 *
 	 * ## OPTIONS
 	 *
@@ -138,8 +138,11 @@ class MVPD_CLI {
 	 * [--settings]
 	 * : Include settings and category order. Default on if neither flag is set.
 	 *
+	 * [--with-images]
+	 * : Bundle referenced images into a .zip alongside export.json. Requires --output.
+	 *
 	 * [--output=<file>]
-	 * : Write to this path instead of stdout.
+	 * : Write to this path instead of stdout. Required when --with-images is set.
 	 *
 	 * [--pretty]
 	 * : Pretty-print the JSON.
@@ -147,6 +150,7 @@ class MVPD_CLI {
 	 * ## EXAMPLES
 	 *
 	 *     wp mvp-docs export --output=/tmp/kb.json --pretty
+	 *     wp mvp-docs export --with-images --output=/tmp/kb.zip
 	 *     wp mvp-docs export --settings > settings.json
 	 */
 	public function export( $args, $assoc_args ) {
@@ -155,56 +159,59 @@ class MVPD_CLI {
 		if ( ! $include_docs && ! $include_settings ) {
 			$include_docs = $include_settings = true;
 		}
+		$with_images = ! empty( $assoc_args['with-images'] );
 
-		$export = [ 'version' => MVPD_VERSION ];
-
-		if ( $include_settings ) {
-			$export['settings']       = mvpd_get_settings();
-			$export['category_order'] = get_option( 'mvpd_category_order', [] );
+		if ( $with_images ) {
+			if ( ! $include_docs ) {
+				WP_CLI::error( '--with-images requires docs to be included.' );
+			}
+			if ( empty( $assoc_args['output'] ) ) {
+				WP_CLI::error( '--with-images requires --output=<file>.' );
+			}
+			if ( ! class_exists( 'ZipArchive' ) ) {
+				WP_CLI::error( 'PHP ZipArchive extension is not available.' );
+			}
 		}
 
-		if ( $include_docs ) {
-			$terms                 = get_terms( [ 'taxonomy' => 'mvpd_category', 'hide_empty' => false ] );
-			$export['categories']  = [];
-			if ( ! is_wp_error( $terms ) ) {
-				foreach ( $terms as $cat ) {
-					$export['categories'][] = [
-						'name'        => $cat->name,
-						'slug'        => $cat->slug,
-						'description' => $cat->description,
-					];
-				}
-			}
-
-			$q = new WP_Query( [
-				'post_type'      => 'mvpd_doc',
-				'posts_per_page' => -1,
-				'post_status'    => 'any',
-			] );
-
-			$export['docs'] = [];
-			while ( $q->have_posts() ) {
-				$q->the_post();
-				$t  = get_the_terms( get_the_ID(), 'mvpd_category' );
-				$cs = ( $t && ! is_wp_error( $t ) ) ? wp_list_pluck( $t, 'slug' ) : [];
-				$export['docs'][] = [
-					'title'      => get_the_title(),
-					'slug'       => get_post_field( 'post_name' ),
-					'content'    => get_the_content(),
-					'excerpt'    => get_the_excerpt(),
-					'status'     => get_post_status(),
-					'categories' => $cs,
-					'sort_order' => (int) get_post_meta( get_the_ID(), 'mvpd_sort_order', true ),
-				];
-			}
-			wp_reset_postdata();
-		}
+		$export = mvpd_build_export_array( $include_docs, $include_settings );
 
 		$flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
 		if ( ! empty( $assoc_args['pretty'] ) ) {
 			$flags |= JSON_PRETTY_PRINT;
 		}
 		$json = wp_json_encode( $export, $flags );
+
+		if ( $with_images ) {
+			$path = self::resolve_path( $assoc_args['output'] );
+			$zip  = new ZipArchive();
+			if ( true !== $zip->open( $path, ZipArchive::CREATE | ZipArchive::OVERWRITE ) ) {
+				WP_CLI::error( "Could not create zip at {$path}" );
+			}
+			$zip->addFromString( 'export.json', $json );
+
+			$urls    = mvpd_collect_image_urls( $export );
+			$added   = 0;
+			$missing = 0;
+			foreach ( $urls as $url ) {
+				$file  = mvpd_path_for_upload_url( $url );
+				$entry = mvpd_zip_entry_for_url( $url );
+				if ( $file && $entry ) {
+					$zip->addFile( $file, $entry );
+					$added++;
+				} else {
+					$missing++;
+				}
+			}
+			$zip->close();
+
+			$msg = sprintf( 'Wrote %s (%d images bundled', $path, $added );
+			if ( $missing ) {
+				$msg .= sprintf( ', %d skipped', $missing );
+			}
+			$msg .= ')';
+			WP_CLI::success( $msg );
+			return;
+		}
 
 		if ( ! empty( $assoc_args['output'] ) ) {
 			$path  = self::resolve_path( $assoc_args['output'] );
@@ -219,111 +226,88 @@ class MVPD_CLI {
 	}
 
 	/**
-	 * Import a JSON bundle previously produced by `wp mvp-docs export`.
+	 * Import a JSON or zip bundle previously produced by `wp mvp-docs export`.
 	 *
 	 * Docs are deduplicated by title — if a doc with the same title exists it is skipped.
+	 * Zip bundles ship referenced images alongside the data; images are sideloaded
+	 * into the media library and content URLs are rewritten.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <file>
-	 * : Path to the JSON bundle.
+	 * : Path to the JSON or zip bundle.
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp mvp-docs import /tmp/kb.json
+	 *     wp mvp-docs import /tmp/kb.zip
 	 */
 	public function import( $args, $assoc_args ) {
 		$file = self::resolve_path( $args[0] );
 		self::assert_readable( $file );
 
-		$data = json_decode( file_get_contents( $file ), true );
+		$is_zip = preg_match( '/\.zip$/i', $file );
+
+		$images_dir = '';
+		$cleanup    = '';
+
+		if ( $is_zip ) {
+			if ( ! class_exists( 'ZipArchive' ) ) {
+				WP_CLI::error( 'PHP ZipArchive extension is not available.' );
+			}
+			$zip = new ZipArchive();
+			if ( true !== $zip->open( $file ) ) {
+				WP_CLI::error( "Could not open zip: {$file}" );
+			}
+			$json = $zip->getFromName( 'export.json' );
+			if ( false === $json ) {
+				$zip->close();
+				WP_CLI::error( 'Bundle is missing export.json.' );
+			}
+			$tmp = mvpd_temp_dir( 'cli' . wp_generate_password( 12, false ) );
+			if ( ! $tmp ) {
+				$zip->close();
+				WP_CLI::error( 'Could not create temporary directory.' );
+			}
+			if ( ! $zip->extractTo( $tmp ) ) {
+				$zip->close();
+				mvpd_rmdir_recursive( $tmp );
+				WP_CLI::error( 'Could not extract bundle.' );
+			}
+			$zip->close();
+			$images_dir = $tmp;
+			$cleanup    = $tmp;
+		} else {
+			$json = file_get_contents( $file );
+		}
+
+		$data = json_decode( $json, true );
 		if ( ! is_array( $data ) || empty( $data['version'] ) ) {
+			if ( $cleanup ) {
+				mvpd_rmdir_recursive( $cleanup );
+			}
 			WP_CLI::error( 'Invalid export file.' );
 		}
 
-		$imported_settings = false;
-		$n_cats            = 0;
+		$imported_settings = mvpd_import_settings_and_order( $data );
+		$n_cats            = mvpd_import_categories( $data );
 		$n_docs            = 0;
 		$n_skipped         = 0;
 
-		if ( ! empty( $data['settings'] ) && is_array( $data['settings'] ) ) {
-			update_option( 'mvpd_settings', mvpd_sanitize_settings( $data['settings'] ) );
-			$imported_settings = true;
-		}
-
-		if ( isset( $data['category_order'] ) && is_array( $data['category_order'] ) ) {
-			update_option( 'mvpd_category_order', array_filter( array_map( 'absint', $data['category_order'] ) ), false );
-		}
-
-		if ( ! empty( $data['categories'] ) && is_array( $data['categories'] ) ) {
-			foreach ( $data['categories'] as $cat ) {
-				if ( empty( $cat['name'] ) ) {
-					continue;
-				}
-				$slug = sanitize_title( $cat['slug'] ?? '' );
-				if ( get_term_by( 'slug', $slug, 'mvpd_category' ) ) {
-					continue;
-				}
-				$r = wp_insert_term( sanitize_text_field( $cat['name'] ), 'mvpd_category', [
-					'slug'        => $slug,
-					'description' => sanitize_text_field( $cat['description'] ?? '' ),
-				] );
-				if ( ! is_wp_error( $r ) ) {
-					$n_cats++;
-				}
-			}
-		}
-
 		if ( ! empty( $data['docs'] ) && is_array( $data['docs'] ) ) {
+			$map = [];
 			foreach ( $data['docs'] as $doc ) {
-				if ( empty( $doc['title'] ) ) {
-					continue;
-				}
-				$existing = new WP_Query( [
-					'post_type'              => 'mvpd_doc',
-					'title'                  => sanitize_text_field( $doc['title'] ),
-					'posts_per_page'         => 1,
-					'post_status'            => 'any',
-					'no_found_rows'          => true,
-					'update_post_meta_cache' => false,
-					'update_post_term_cache' => false,
-				] );
-				if ( $existing->have_posts() ) {
+				$res = mvpd_import_one_doc( $doc, $images_dir, $map );
+				if ( $res === 'imported' ) {
+					$n_docs++;
+				} elseif ( $res === 'skipped' ) {
 					$n_skipped++;
-					continue;
-				}
-
-				$post_id = wp_insert_post( [
-					'post_type'    => 'mvpd_doc',
-					'post_title'   => sanitize_text_field( $doc['title'] ),
-					'post_name'    => sanitize_title( $doc['slug'] ?? '' ),
-					'post_content' => wp_kses_post( $doc['content'] ?? '' ),
-					'post_excerpt' => sanitize_text_field( $doc['excerpt'] ?? '' ),
-					'post_status'  => in_array( $doc['status'] ?? '', [ 'publish', 'draft', 'private' ], true ) ? sanitize_key( $doc['status'] ) : 'draft',
-				] );
-
-				if ( is_wp_error( $post_id ) ) {
-					continue;
-				}
-				$n_docs++;
-
-				if ( ! empty( $doc['sort_order'] ) ) {
-					update_post_meta( $post_id, 'mvpd_sort_order', absint( $doc['sort_order'] ) );
-				}
-
-				if ( ! empty( $doc['categories'] ) && is_array( $doc['categories'] ) ) {
-					$term_ids = [];
-					foreach ( $doc['categories'] as $slug ) {
-						$term = get_term_by( 'slug', sanitize_title( $slug ), 'mvpd_category' );
-						if ( $term ) {
-							$term_ids[] = $term->term_id;
-						}
-					}
-					if ( $term_ids ) {
-						wp_set_object_terms( $post_id, $term_ids, 'mvpd_category' );
-					}
 				}
 			}
+		}
+
+		if ( $cleanup ) {
+			mvpd_rmdir_recursive( $cleanup );
 		}
 
 		$parts = [];
