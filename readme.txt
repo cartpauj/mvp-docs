@@ -4,7 +4,7 @@ Tags: documentation, docs, knowledge base, markdown, ai
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,9 @@ Your content stays. Docs are standard WordPress posts — they remain in your da
 8. Markdown import in the block editor sidebar
 
 == Changelog ==
+= 1.1.3 =
+* Export/Import now optionally bundles referenced images into a .zip (admin UI uses chunked AJAX with progress; CLI gains `--with-images` on export and auto-detects .zip on import)
+
 = 1.1.2 =
 * Equal-height category cards on the docs archive
 
